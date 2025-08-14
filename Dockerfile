@@ -13,7 +13,8 @@ ENV PYTHONUNBUFFERED=1
 
 # Install dependencies first for caching benefit
 RUN pip install --upgrade pip
-COPY requirements.txt /app/
+COPY --chown=root:root --chmod=755 requirements.txt /app/
+#COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Production stage
@@ -31,7 +32,12 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 WORKDIR /app
 
 # Copy application code
-COPY --chown=appuser:appuser . .
+#COPY --chown=root:root --chmod=755 requirements*.txt ./
+COPY --chown=root:root --chmod=755 manage.py ./
+COPY --chown=root:root --chmod=755 entrypoint.prod.sh ./
+COPY --chown=root:root --chmod=755 api ./api
+COPY --chown=root:root --chmod=755 config ./config
+#COPY --chown=appuser:appuser . .
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -44,7 +50,7 @@ USER appuser
 EXPOSE 8000
 
 # Make entry file executable
-RUN chmod +x  /app/entrypoint.prod.sh
+#RUN chmod +x  /app/entrypoint.prod.sh
 
 # Start the application using Gunicorn
 CMD ["/app/entrypoint.prod.sh"]
